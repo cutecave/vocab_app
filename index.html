@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文學習工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 25px;
+            font-size: 28px;
+        }
+        
+        /* 輸入區域 */
+        .input-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        /* 按鈕樣式 */
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+        
+        .btn-secondary {
+            background: #718096;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        
+        /* 文字處理區域 */
+        #displayArea {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            min-height: 100px;
+            line-height: 2;
+            font-size: 18px;
+            display: none;
+        }
+        
+        /* 單字可點擊樣式（保留你的邏輯，改用 span） */
+        .word {
+            cursor: pointer;
+            padding: 3px 5px;
+            border-radius: 5px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        
+        .word:hover {
+            background: #e6f2ff;
+        }
+        
+        .word.selected {
+            background: #ffd700;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* 已選單字計數 */
+        .selected-count {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+            font-weight: 500;
+        }
+        
+        /* 工具列（保留你的所有功能） */
+        .toolbar {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 20px 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .toolbar label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        
+        .toolbar input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .divider {
+            color: #cbd5e0;
+            margin: 0 5px;
+        }
+        
+        /* 單字列表（保留你的 checkbox 設計） */
+        .word-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.2s;
+        }
+        
+        .word-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .word-item-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .word-item-header input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .word-item-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        
+        .word-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        
+        .word-tag {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .context-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .meta-info {
+            color: #718096;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #a0aec0;
+            padding: 40px;
+            font-size: 16px;
+        }
+        
+        /* 手機優化 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 英文學習工具</h1>
+        
+        <!-- 輸入區域 -->
+        <div class="input-section">
+            <textarea id="articleInput" placeholder="貼上英文文章..."></textarea>
+            <input type="text" id="sourceInput" placeholder="來源：如 Reddit、Chapter 3">
+            <button class="btn" onclick="processText()">🔄 處理文字</button>
+            <button class="btn btn-danger" onclick="clearInput()">🗑️ 清除輸入</button>
+        </div>
+        
+        <!-- 可點擊的文字顯示區 -->
+        <div id="displayArea"></div>
+        
+        <!-- 已選單字計數 -->
+        <div class="selected-count" id="selectedCount"></div>
+        
+        <!-- 儲存按鈕 -->
+        <button class="btn btn-success" id="saveButton" onclick="saveSelection()" style="display: none;">💾 儲存選取的單字</button>
+        
+        <!-- 工具列（保留你所有的功能） -->
+        <div class="toolbar">
+            <strong>💩 單字列表：</strong>
+            <label>
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                全選
+            </label>
+            <label>
+                <input type="checkbox" id="displayContext" onchange="displayWords()">
+                顯示上下文
+            </label>
+            <button class="btn btn-danger" id="deleteButton" onclick="deleteSelected()" style="display: none;">刪除選取</button>
+            <span class="divider">|</span>
+            <button class="btn btn-secondary" onclick="sortWords('word')">單字排序</button>
+            <button class="btn btn-secondary" onclick="sortWords('sentence')">句子排序</button>
+            <button class="btn btn-secondary" onclick="sortWords('date')">日期排序</button>
+            <span class="divider">|</span>
+            <button class="btn btn-secondary" onclick="exportData()">匯出</button>
+            <button class="btn btn-secondary" onclick="importData()">匯入</button>
+        </div>
+        
+        <!-- 單字列表 -->
+        <div id="wordList"></div>
+    </div>
+
+    <script>
+        // ====== 全域變數 ======
+        let selectedWords = new Set(); // 用 Set 儲存選中的單字（不重複）
+        let currentSort = { key: 'date', order: 'desc' }; // 預設按日期降序
+
+        // ====== 處理文字：把句子拆成可點擊的單字 ======
+        function processText() {
+            const text = document.getElementById('articleInput').value.trim();
+            if (!text) {
+                //alert('請先輸入文字！');
+                return;
+            }
+
+            const displayArea = document.getElementById('displayArea');
+            selectedWords.clear(); // 清空之前選的單字
+            
+            // 用正則表達式分割：單字（包含 apostrophe）和標點符號
+            const tokens = text.match(/\b[\w']+\b|[^\w\s]/g) || [];
+            
+            let html = '';
+            tokens.forEach((token, index) => {
+                if (/\b[\w']+\b/.test(token)) {
+                    // 是單字 → 包成可點擊的 span
+                    html += `<span class="word" onclick="toggleWord(this)">${token}</span>`;
+                } else {
+                    // 是標點符號 → 直接顯示
+                    html += token;
+                }
+                
+                // 單字後面加空格（除非下一個是標點）
+                if (index < tokens.length - 1 && /\b[\w']+\b/.test(token)) {
+                    const nextToken = tokens[index + 1];
+                    if (/\b[\w']+\b/.test(nextToken)) {
+                        html += ' ';
+                    }
+                }
+            });
+            
+            displayArea.innerHTML = html;
+            displayArea.style.display = 'block';
+            updateSelectedCount();
+        }
+
+        // ====== 點擊單字：智慧選取（支援片語） ======
+        function toggleWord(element) {
+            if (element.classList.contains('selected')) {
+                // 取消選取
+                element.classList.remove('selected');
+                // 重新計算所有片語
+                rebuildPhrases();
+            } else {
+                // 選取
+                element.classList.add('selected');
+                // 重新計算所有片語
+                rebuildPhrases();
+            }
+            
+            updateSelectedCount();
+        }
+
+        // 重新計算所有片語：把相鄰的選中單字組成片語
+        function rebuildPhrases() {
+            selectedWords.clear();
+            
+            const allWords = Array.from(document.querySelectorAll('.word'));
+            let i = 0;
+            
+            while (i < allWords.length) {
+                if (allWords[i].classList.contains('selected')) {
+                    // 找出連續選中的單字
+                    const phraseWords = [];
+                    while (i < allWords.length && allWords[i].classList.contains('selected')) {
+                        phraseWords.push(allWords[i].textContent);
+                        i++;
+                    }
+                    // 組成片語或單字
+                    const phrase = phraseWords.join(' ');
+                    selectedWords.add(phrase);
+                } else {
+                    i++;
+                }
+            }
+        }
+
+        // ====== 更新已選單字計數 ======
+        function updateSelectedCount() {
+            const countDiv = document.getElementById('selectedCount');
+            const saveBtn = document.getElementById('saveButton');
+            
+            if (selectedWords.size > 0) {
+                countDiv.textContent = `已選擇 ${selectedWords.size} 個單字：${Array.from(selectedWords).join(', ')}`;
+                countDiv.style.display = 'block';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                countDiv.style.display = 'none';
+                saveBtn.style.display = 'none';
+            }
+        }
+
+        // ====== 儲存選取的單字（儲存後取消選取） ======
+        function saveSelection() {
+            if (selectedWords.size === 0) {
+                //alert('請先選擇至少一個單字！');
+                return;
+            }
+
+            const sentence = document.getElementById('articleInput').value.trim();
+            const source = document.getElementById('sourceInput').value.trim() || 'unknown';
+            const words = Array.from(selectedWords);
+            
+            // 從 localStorage 讀取現有資料
+            let items = JSON.parse(localStorage.getItem('words')) || [];
+            
+            // 【重點】檢查是否已有相同的句子
+            const existingIndex = items.findIndex(item => item.context === sentence);
+            
+            if (existingIndex !== -1) {
+                // 已存在 → 合併單字（不重複）
+                const existingWords = items[existingIndex].words;
+                const mergedWords = [...new Set([...existingWords, ...words])];
+                items[existingIndex].words = mergedWords;
+                items[existingIndex].date = new Date().toISOString(); // 更新時間
+                //alert(`✅ 已將新單字/片語合併到現有例句！（共 ${mergedWords.length} 個）`);
+            } else {
+                // 不存在 → 新增
+                items.unshift({
+                    context: sentence,
+                    words: words,
+                    source: source,
+                    date: new Date().toISOString()
+                });
+                //alert('✅ 儲存成功！');
+            }
+
+            localStorage.setItem('words', JSON.stringify(items));
+            
+            // 【重點】儲存後取消選取（但保留文字和處理後的顯示）
+            document.querySelectorAll('.word.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            selectedWords.clear();
+            updateSelectedCount();
+            displayWords();
+        }
+
+        // ====== 清除輸入 ======
+        function clearInput() {
+            document.getElementById('articleInput').value = '';
+            document.getElementById('sourceInput').value = '';
+            document.getElementById('displayArea').innerHTML = '';
+            document.getElementById('displayArea').style.display = 'none';
+            selectedWords.clear();
+            updateSelectedCount();
+        }
+
+        // ====== 顯示單字列表（保留你的 checkbox 設計） ======
+        function displayWords() {
+            const items = JSON.parse(localStorage.getItem('words')) || [];
+            const wordList = document.getElementById('wordList');
+            const showContext = document.getElementById('displayContext').checked;
+
+            if (items.length === 0) {
+                wordList.innerHTML = '<div class="empty-state">還沒有儲存任何例句喔～</div>';
+                return;
+            }
+
+            let html = '';
+            items.forEach((item, index) => {
+                // 高亮單字
+                let displayText = item.context;
+                if (showContext) {
+                    item.words.forEach(word => {
+                        const regex = new RegExp(`\\b(${word})\\b`, 'gi');
+                        displayText = displayText.replace(regex, '<strong style="background: #ffd700; padding: 2px 4px; border-radius: 3px;">$1</strong>');
+                    });
+                }
+
+                html += `
+                    <div class="word-item">
+                        <div class="word-item-header">
+                            <input type="checkbox" data-index="${index}" onchange="updateDeleteButton()">
+                            <span class="word-item-title">${index}. ${item.words.join(', ')}</span>
+                        </div>
+                        <div class="word-tags">
+                            ${item.words.map(w => `<span class="word-tag">${w}</span>`).join('')}
+                        </div>
+                        ${showContext ? `<div class="context-text">${displayText}</div>` : ''}
+                        <div class="meta-info">
+                            來源: ${item.source} | 建立: ${new Date(item.date).toLocaleString('zh-TW')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            wordList.innerHTML = html;
+        }
+
+        // ====== 全選 / 取消全選 ======
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('#wordList input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = selectAll.checked);
+            updateDeleteButton();
+        }
+
+        // ====== 更新刪除按鈕顯示 ======
+        function updateDeleteButton() {
+            const deleteBtn = document.getElementById('deleteButton');
+            const checkedCount = document.querySelectorAll('#wordList input[type="checkbox"]:checked').length;
+            deleteBtn.style.display = checkedCount > 0 ? 'inline-block' : 'none';
+        }
+
+        // ====== 刪除選取的項目 ======
+        function deleteSelected() {
+            const checkedIndexes = Array.from(document.querySelectorAll('#wordList input[type="checkbox"]:checked'))
+                .map(cb => parseInt(cb.getAttribute('data-index')));
+            
+            if (checkedIndexes.length === 0) return;
+            
+            if (!confirm(`確定要刪除 ${checkedIndexes.length} 個項目嗎？`)) return;
+
+            let items = JSON.parse(localStorage.getItem('words')) || [];
+            items = items.filter((_, i) => !checkedIndexes.includes(i));
+            localStorage.setItem('words', JSON.stringify(items));
+            
+            document.getElementById('selectAll').checked = false;
+            displayWords();
+        }
+
+        // ====== 排序（保留你的邏輯） ======
+        function sortWords(sortKey) {
+            let items = JSON.parse(localStorage.getItem('words')) || [];
+            
+            // 如果點同一個按鈕，就反轉順序
+            if (currentSort.key === sortKey) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.key = sortKey;
+                currentSort.order = 'asc';
+            }
+            
+            // 排序邏輯
+            if (sortKey === 'date') {
+                items.sort((a, b) => {
+                    const diff = new Date(a.date) - new Date(b.date);
+                    return currentSort.order === 'asc' ? diff : -diff;
+                });
+            } else if (sortKey === 'word') {
+                items.sort((a, b) => {
+                    const result = a.words[0].localeCompare(b.words[0]);
+                    return currentSort.order === 'asc' ? result : -result;
+                });
+            } else if (sortKey === 'sentence') {
+                items.sort((a, b) => {
+                    const result = a.context.localeCompare(b.context);
+                    return currentSort.order === 'asc' ? result : -result;
+                });
+            }
+            
+            localStorage.setItem('words', JSON.stringify(items));
+            displayWords();
+        }
+
+        // ====== 匯出資料 ======
+        function exportData() {
+            const data = localStorage.getItem('words');
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `words_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ====== 匯入資料 ======
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        try {
+                            const data = JSON.parse(event.target.result);
+                            localStorage.setItem('words', JSON.stringify(data));
+                            displayWords();
+                            //alert('✅ 匯入成功！');
+                        } catch (err) {
+                            //alert('❌ 匯入失敗：檔案格式錯誤');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+            input.click();
+        }
+
+        // ====== 頁面載入時顯示資料 ======
+        window.onload = function() {
+            displayWords();
+        };
+    </script>
+</body>
+</html>
