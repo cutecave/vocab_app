@@ -1,3 +1,5 @@
+let speechSpeed = 1.0; // 預設語速
+
 function showFlashcard(word, sentence) {
     // 建立遮罩層（半透明背景）
     const overlay = document.createElement('div');
@@ -91,7 +93,7 @@ function showFlashcard(word, sentence) {
     playButton.style.cssText = `
         position: absolute;
         bottom: 10px;
-        right: 10px;
+        right: 60px;
         width: 40px;
         height: 40px;
         border-radius: 50%;
@@ -99,11 +101,37 @@ function showFlashcard(word, sentence) {
         font-size: 20px;
         line-height: 1;
     `;
-    playButton.onclick = () => SpeechManager.speak(sentence, playButton);
+    playButton.onclick = () => SpeechManager.speak(sentence, playButton, speechSpeed);
+
+    // 語速按鈕
+    const speedButton = document.createElement('button');
+    speedButton.textContent = speechSpeed.toFixed(1) + "x";
+    speedButton.className = "btn btn-primary";
+    speedButton.style.cssText = `
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 14px;
+        line-height: 1;
+    `;
+    speedButton.onclick = () => {
+        speechSpeed -= 0.1;
+        if (speechSpeed < 0.6) speechSpeed = 1.0;
+        speedButton.textContent = speechSpeed.toFixed(1) + "x";
+        if (SpeechManager.isPlaying) {
+            SpeechManager.stop();
+            SpeechManager.speak(sentence, playButton, speechSpeed);
+        }
+    }
     
     // 組裝
     sentenceContainer.appendChild(sentenceElement);
     sentenceContainer.appendChild(playButton);
+    sentenceContainer.appendChild(speedButton);
     card.appendChild(closeButton);
     card.appendChild(wordElement);
     card.appendChild(divider);
@@ -127,7 +155,7 @@ function showFlashcard(word, sentence) {
     };
     document.addEventListener('keydown', handleEscape);
     
-    setTimeout(() => SpeechManager.speak(sentence, playButton), 500);
+    setTimeout(() => SpeechManager.speak(sentence, playButton, speechSpeed), 500);
 }
 
 function hideFlashcard() {

@@ -3,22 +3,19 @@ const SpeechManager = {
     utterance: null,
     isPlaying: false,
     currentButton: null,
-    temp: 1,
     
     // 播放文字
-    speak(text, button) {
+    speak(text, button, rate = 1.0) {
         // 如果正在播放，先停止
         if (this.isPlaying) {
-            console.log('stop' + this.temp++);
             this.stop();
             return;
         }
-        console.log('speak' + this.temp++);
         
         this.currentButton = button;
         this.utterance = new SpeechSynthesisUtterance(text);
         this.utterance.lang = 'en-US';
-        this.utterance.rate = 1;
+        this.utterance.rate = rate;
         
         // 開始播放時
         this.utterance.onstart = () => {
