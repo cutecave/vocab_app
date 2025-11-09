@@ -42,8 +42,8 @@ function showFlashcard(word, sentence) {
         font-size: 20px;
         line-height: 1;
     `;
-    closeButton.onclick = () => overlay.remove();
-    
+    closeButton.onclick = () => hideFlashcard();
+
     // 單字標題
     const wordElement = document.createElement('div');
     wordElement.textContent = word;
@@ -63,6 +63,17 @@ function showFlashcard(word, sentence) {
         margin: 20px 0;
     `;
     
+    // 例句容器
+    const sentenceContainer = document.createElement('div');
+    sentenceContainer.style.cssText = `
+        position: relative;
+        background: #f7fafc;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+        padding: 20px;
+        padding-bottom: 60px;
+    `;
+    
     // 例句
     const sentenceElement = document.createElement('div');
     sentenceElement.textContent = sentence;
@@ -71,39 +82,61 @@ function showFlashcard(word, sentence) {
         line-height: 1.8;
         color: #4a5568;
         text-align: left;
-        padding: 20px;
-        background: #f7fafc;
-        border-radius: 12px;
-        border-left: 4px solid #667eea;
     `;
+
+    // 播放按鈕
+    const playButton = document.createElement('button');
+    playButton.textContent = "▶";
+    playButton.className = "btn btn-primary";
+    playButton.style.cssText = `
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        padding: 0;
+        font-size: 20px;
+        line-height: 1;
+    `;
+    playButton.onclick = () => SpeechManager.speak(sentence, playButton);
     
     // 組裝
+    sentenceContainer.appendChild(sentenceElement);
+    sentenceContainer.appendChild(playButton);
     card.appendChild(closeButton);
     card.appendChild(wordElement);
     card.appendChild(divider);
-    card.appendChild(sentenceElement);
+    card.appendChild(sentenceContainer);
     overlay.appendChild(card);
     document.body.appendChild(overlay);
     
     // 點擊背景關閉
     overlay.addEventListener('click', function(e) {
         if (e.target === overlay) {
-            overlay.remove();
-            window.speechSynthesis.pause(); // 停止朗讀
+            hideFlashcard();
         }
     });
     
     // ESC 鍵關閉
     const handleEscape = function(e) {
         if (e.key === 'Escape') {
-            overlay.remove();
             document.removeEventListener('keydown', handleEscape);
-            window.speechSynthesis.pause(); // 停止朗讀
+            hideFlashcard();
         }
     };
     document.addEventListener('keydown', handleEscape);
     
-    setTimeout(() => speakText(sentence), 500);
+    setTimeout(() => SpeechManager.speak(sentence, playButton), 500);
+}
+
+function hideFlashcard() {
+    const overlay = document.querySelector('div[style*="position: fixed"][style*="z-index: 999"]');
+    if (overlay) {
+        overlay.remove();
+        SpeechManager.cleanup();
+        console.log("Flashcard closed and speech synthesis canceled.");
+    }
 }
 
 // 加入動畫 CSS（只需要在第一次載入時加入）
@@ -125,18 +158,3 @@ if (!document.getElementById('flashcard-style')) {
     document.head.appendChild(style);
 }
 
-
-function speakText(textToSpeak) {
-    // 1. 建立一個語音實例（Utterance）
-    const utterance = new SpeechSynthesisUtterance(textToSpeak);
-    
-    // 2. [可選] 設定語言（例如中文）
-    // 您可以嘗試不同的值，例如 'zh-TW', 'zh-CN', 'en-US'
-    utterance.lang = 'en-US'; 
-
-    // 3. [可選] 設定語速 (0.1 ~ 10, 預設是 1)
-    utterance.rate = 1; 
-    
-    // 4. 開始朗讀
-    window.speechSynthesis.speak(utterance);
-}
